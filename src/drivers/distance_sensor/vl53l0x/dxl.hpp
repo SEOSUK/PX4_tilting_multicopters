@@ -46,56 +46,41 @@
 #include <drivers/device/i2c.h>
 #include <drivers/drv_hrt.h>
 #include <lib/perf/perf_counter.h>
-#include <px4_platform_common/px4_work_queue/WorkItem.hpp> // px4::WorkItem 포함
-#include <px4_platform_common/px4_work_queue/WorkQueueManager.hpp>
+#include <lib/drivers/rangefinder/PX4Rangefinder.hpp>
 
 /* Configuration Constants */
 #define VL53L0X_BASEADDR                                0x29
 
-class VL53L0X : public px4::WorkItem
+class VL53L0X : public device::I2C, public I2CSPIDriver<VL53L0X>
 {
 public:
-	VL53L0X();
-	~VL53L0X();
+	VL53L0X(const I2CSPIDriverConfig &config);
+
+	~VL53L0X() override;
 
 	static void print_usage();
-
-
-    static VL53L0X *_instance; // 정적 멤버 변수 선언
-    static int module_start();
-    static int module_stop();
-    static int module_status();
-
-
-
-
-
 
 	/**
 	 * Diagnostics - print some basic information about the driver.
 	 */
-	void print_status();
+	void print_status() override;
 
 	/**
 	 * Perform a poll cycle; collect from the previous measurement
 	 * and start a new one.
 	 */
-    void Run() override; // WorkItem의 메서드 재정의
+	void RunImpl();
 
-	int init();
-
+	int init() override;
 
 private:
-	int probe();
+	int probe() override;
 
 	/**
 	 * Collects the most recent sensor measurement data from the i2c bus.
 	 */
 	int collect();
 
-	// SEUK
-	void tx_function();
-	void rx_function();
 	/**
 	 * Sends an i2c measure command to the sensor.
 	 */
@@ -104,13 +89,15 @@ private:
 	int readRegister(const uint8_t reg_address, uint8_t &value);
 	int readRegisterMulti(const uint8_t reg_address, uint8_t *value, const uint8_t length);
 
-	// int writeRegister(const uint8_t reg_address, const uint8_t value);
-	// int writeRegisterMulti(const uint8_t reg_address, const uint8_t *value, const uint8_t length);
+	int writeRegister(const uint8_t reg_address, const uint8_t value);
+	int writeRegisterMulti(const uint8_t reg_address, const uint8_t *value, const uint8_t length);
 
 	int sensorInit();
-	// int sensorTuning();
-	// int singleRefCalibration(const uint8_t byte);
-	// int spadCalculations();
+	int sensorTuning();
+	int singleRefCalibration(const uint8_t byte);
+	int spadCalculations();
+
+	PX4Rangefinder	_px4_rangefinder;
 
 	bool _collect_phase{false};
 	bool _measurement_started{false};
@@ -120,7 +107,5 @@ private:
 
 	perf_counter_t _comms_errors{perf_alloc(PC_COUNT, MODULE_NAME": com_err")};
 	perf_counter_t _sample_perf{perf_alloc(PC_ELAPSED, MODULE_NAME": read")};
-
-	int count = 0; //SEUK
 
 };
