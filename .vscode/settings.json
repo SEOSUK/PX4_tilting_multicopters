@@ -21,6 +21,12 @@
         "hash_set": "cpp",
         "initializer_list": "cpp",
         "span": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp",
+        "*.ipp": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp"
     }
 }

@@ -33,10 +33,9 @@
 
 px4_add_module(
 	MODULE drivers__distance_sensor__vl53l0x
-	MAIN vl53l0x
+	MAIN dynamixel
 	SRCS
 		VL53L0X.cpp
-		VL53L0X.hpp
 	DEPENDS
 		drivers_rangefinder
 		px4_work_queue
